@@ -2,8 +2,6 @@ import express from 'express';
 import handlebars from 'express-handlebars';
 import mongoose from 'mongoose';
 
-import "dotenv/config";
-
 import routes from "./routes.js";
 import cookieParser from 'cookie-parser';
 import { authMiddleware } from './middlewares/authMiddleware.js';
