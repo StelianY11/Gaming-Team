@@ -33,8 +33,11 @@ gameController.post("/create", async (req, res) => {
 
 gameController.get("/:gameId/details", async (req, res) => {
     const game = await gameService.getOne(req.params.gameId).lean();
+    const isOwner = game.owner.toString() === req.user?._id;
 
-    res.render("games/details", { game, title: "Details Page" })
+    const boughtGame = game.boughtBy?.some(userId => userId.toString() === req.user?._id);
+
+    res.render("games/details", { game, isOwner, boughtGame, title: "Details Page" })
 });
 
 function getGameDataType({ platform }) {
