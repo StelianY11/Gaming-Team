@@ -12,7 +12,7 @@ const app = express();
 
 //Setup DB
 const dbUrl = 'mongodb://localhost:27017';
-mongoose.connect(dbUrl, {dbName: "volcanoes"}) //changeDb Name
+mongoose.connect(dbUrl, {dbName: "game-team"}) //changeDb Name
     .then(() => console.log("DB connected successfully!"))
     .catch((err) => console.log(`DB failed to connect: ${err}`));
 
