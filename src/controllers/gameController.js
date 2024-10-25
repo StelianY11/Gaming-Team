@@ -31,6 +31,12 @@ gameController.post("/create", async (req, res) => {
     }
 });
 
+gameController.get("/:gameId/details", async (req, res) => {
+    const game = await gameService.getOne(req.params.gameId).lean();
+
+    res.render("games/details", { game, title: "Details Page" })
+});
+
 function getGameDataType({ platform }) {
     const gamePlatform = [
         "PC",

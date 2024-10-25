@@ -7,6 +7,9 @@ const gameService = {
     getAll(filter = {}){
         return Game.find();
     },
+    getOne(gameId){
+        return Game.findById(gameId);
+    },
 };
 
 export default gameService;

@@ -17,6 +17,10 @@ const gameSchema = new Schema({
         type: String,
         required: [true, "Game description is required!"],
     },
+    genre: {
+        type: String,
+        required: [true, "Game genre is required!"],
+    },
     platform: {
         type: String,
         required: [true, "Game platform is required!"],
