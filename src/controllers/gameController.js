@@ -40,6 +40,24 @@ gameController.get("/:gameId/details", async (req, res) => {
     res.render("games/details", { game, isOwner, boughtGame, title: "Details Page" })
 });
 
+gameController.get("/:gameId/vote", async (req, res) => {
+    const gameId = req.params.gameId;
+    const userId = req.user._id;
+
+    if(await isGameOwner(gameId, userId)){
+        return res.redirect("/404")
+    }
+
+    try {
+        await gameService.buy(gameId, userId);
+
+        res.redirect(`/games/${gameId}/details`);
+    } catch (err) {
+        console.log(err);
+        
+    }
+});
+
 function getGameDataType({ platform }) {
     const gamePlatform = [
         "PC",
@@ -60,7 +78,7 @@ function getGameDataType({ platform }) {
 
 async function isGameOwner(gameId, userId) {
     const game = await gameService.getOne(gameId);
-    const isOwner = game.owner.toStrong() === userId;
+    const isOwner = game.owner.toString() === userId;
 
     return isOwner;
 }

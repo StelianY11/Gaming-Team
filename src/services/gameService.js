@@ -1,14 +1,17 @@
 import Game from "../models/Game.js";
 
 const gameService = {
-    create(gameData, userId){
+    create(gameData, userId) {
         return Game.create({ ...gameData, owner: userId });
     },
-    getAll(filter = {}){
+    getAll(filter = {}) {
         return Game.find();
     },
-    getOne(gameId){
+    getOne(gameId) {
         return Game.findById(gameId);
+    },
+    buy(gameId, userId) {
+        return Game.findByIdAndUpdate(gameId, { $push: { boughtBy: userId } });
     },
 };
 
