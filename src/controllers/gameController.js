@@ -60,14 +60,34 @@ gameController.get("/:gameId/vote", async (req, res) => {
 
 gameController.get("/:gameId/edit", async (req, res) => {
     const game = await gameService.getOne(req.params.gameId).lean();
-    const gameData = req.body;
-    const gameDataType = getGameDataType(gameData);
+    const gameDataType = getGameDataType(game);
 
     res.render("games/edit", { game, gamePlatformType: gameDataType, title: "Edit Page - Gaming Team" })
 });
 
 gameController.post("/:gameId/edit", async (req, res) => {
-    res.end();
+    const gameData = req.body; 
+    const gameId = req.params.gameId;
+
+    try {
+        await gameService.edit(gameId, gameData);
+        
+        res.redirect(`/games/${gameId}/details`);
+    } catch (err) {
+        console.log(err);
+    }
+});
+
+gameController.get("/:gameId/delete", async (req, res) =>{
+    const gameId = req.params.gameId;
+
+    try {
+        await gameService.remove(gameId);
+
+        res.redirect("/games");
+    } catch (err) {
+        console.log(err);
+    }
 });
 
 

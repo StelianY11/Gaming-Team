@@ -13,6 +13,12 @@ const gameService = {
     buy(gameId, userId) {
         return Game.findByIdAndUpdate(gameId, { $push: { boughtBy: userId } });
     },
+    remove(gameId) {
+        return Game.findByIdAndDelete(gameId);
+    },
+    edit(gameId, gameData) {
+        return Game.findByIdAndUpdate(gameId, gameData, { runValidators: true });
+    }
 };
 
 export default gameService;
