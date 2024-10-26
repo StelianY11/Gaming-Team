@@ -5,7 +5,17 @@ const gameService = {
         return Game.create({ ...gameData, owner: userId });
     },
     getAll(filter = {}) {
-        return Game.find();
+        let query = Game.find();
+
+        if (filter.name) {
+            query.find({ name: { $regex: filter.name, $options: "i" } })
+        }
+
+        if (filter.platform) {
+            query.find({ platform: filter.platform })
+        }
+
+        return query;
     },
     getOne(gameId) {
         return Game.findById(gameId);

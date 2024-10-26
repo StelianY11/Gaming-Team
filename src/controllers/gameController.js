@@ -1,6 +1,7 @@
 import { Router } from "express";
 import gameService from "../services/gameService.js";
 import { getErrorMessage } from "../utils/errorUtils.js";
+import { isAuth } from "../middlewares/authMiddleware.js";
 
 const gameController = Router();
 
@@ -9,14 +10,14 @@ gameController.get("/", async (req, res) => {
     res.render("games", { games, title: "Catalog Page - Gaming Team" })
 });
 
-gameController.get("/create", (req, res) => {
+gameController.get("/create", isAuth, (req, res) => {
     const gameData = req.body;
     const gameDataType = getGameDataType(gameData);
 
     res.render("games/create", { gamePlatformType: gameDataType, title: "Catalog Page - Gaming Team" })
 });
 
-gameController.post("/create", async (req, res) => {
+gameController.post("/create", isAuth, async (req, res) => {
     const gameData = req.body;
     const userId = req.user._id;
 
@@ -29,6 +30,14 @@ gameController.post("/create", async (req, res) => {
         const error = getErrorMessage(err);
         res.render("games/create", { game: gameData, gamePlatformType: gameDataType, error, title: "Catalog Page - Gaming Team" })
     }
+});
+
+gameController.get("/search", isAuth, async (req, res) => {
+    const searchFilter = req.query
+    const games = await gameService.getAll(searchFilter).lean();
+    const gameDataType = getGameDataType(searchFilter);
+
+    res.render("games/search", { games, searchFilter, gamePlatformType: gameDataType, title: "Search - Gaming Team" })
 });
 
 gameController.get("/:gameId/details", async (req, res) => {
@@ -44,7 +53,7 @@ gameController.get("/:gameId/vote", async (req, res) => {
     const gameId = req.params.gameId;
     const userId = req.user._id;
 
-    if(await isGameOwner(gameId, userId)){
+    if (await isGameOwner(gameId, userId)) {
         return res.redirect("/404")
     }
 
@@ -54,32 +63,48 @@ gameController.get("/:gameId/vote", async (req, res) => {
         res.redirect(`/games/${gameId}/details`);
     } catch (err) {
         console.log(err);
-        
+
     }
 });
 
-gameController.get("/:gameId/edit", async (req, res) => {
+gameController.get("/:gameId/edit", isAuth, async (req, res) => {
     const game = await gameService.getOne(req.params.gameId).lean();
     const gameDataType = getGameDataType(game);
+    const gameId = req.params.gameId;
+    const userId = req.user._id;
+
+    if (!(await isGameOwner(gameId, userId))) {
+        return res.redirect("/404")
+    }
 
     res.render("games/edit", { game, gamePlatformType: gameDataType, title: "Edit Page - Gaming Team" })
 });
 
-gameController.post("/:gameId/edit", async (req, res) => {
-    const gameData = req.body; 
+gameController.post("/:gameId/edit", isAuth, async (req, res) => {
+    const gameData = req.body;
     const gameId = req.params.gameId;
+    const userId = req.user._id;
+
+    if (!(await isGameOwner(gameId, userId))) {
+        return res.redirect("/404");
+    }
 
     try {
         await gameService.edit(gameId, gameData);
-        
+
         res.redirect(`/games/${gameId}/details`);
     } catch (err) {
         console.log(err);
     }
 });
 
-gameController.get("/:gameId/delete", async (req, res) =>{
+gameController.get("/:gameId/delete", isAuth, async (req, res) => {
     const gameId = req.params.gameId;
+    const userId = req.user._id;
+
+    if (!(await isGameOwner(gameId, userId))) {
+        return res.redirect("/404");
+    }
 
     try {
         await gameService.remove(gameId);
@@ -89,7 +114,6 @@ gameController.get("/:gameId/delete", async (req, res) =>{
         console.log(err);
     }
 });
-
 
 
 function getGameDataType({ platform }) {
