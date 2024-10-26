@@ -58,6 +58,20 @@ gameController.get("/:gameId/vote", async (req, res) => {
     }
 });
 
+gameController.get("/:gameId/edit", async (req, res) => {
+    const game = await gameService.getOne(req.params.gameId).lean();
+    const gameData = req.body;
+    const gameDataType = getGameDataType(gameData);
+
+    res.render("games/edit", { game, gamePlatformType: gameDataType, title: "Edit Page - Gaming Team" })
+});
+
+gameController.post("/:gameId/edit", async (req, res) => {
+    res.end();
+});
+
+
+
 function getGameDataType({ platform }) {
     const gamePlatform = [
         "PC",
